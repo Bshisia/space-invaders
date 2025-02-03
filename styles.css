@@ -1,0 +1,100 @@
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #000;
+  overflow: hidden;
+  font-family: 'Arial', sans-serif;
+}
+
+#gameContainer {
+  position: relative;
+  width: 800px;
+  height: 600px;
+  background-color: #000;
+  border: 1px solid #fff;
+}
+
+#sidebar {
+  width: 200px;
+  height: 600px;
+  background-color: #333;
+  color: #fff;
+  padding: 20px;
+  box-sizing: border-box;
+  border-left: 1px solid #fff;
+}
+
+#sidebar h2 {
+  margin: 0 0 20px 0;
+  font-size: 24px;
+}
+
+#player {
+  position: absolute;
+  width: 50px;
+  height: 80px;
+  background-image: url("assets/player.png");
+  background-size: cover;
+  background-position: center;
+  bottom: 5px;
+  left: 50%;
+}
+
+.enemy {
+  position: absolute;
+  width: 50px;
+  height: 70px;
+  background-image: url("assets/enemy.png");
+  background-size: cover;
+  background-position: center;
+}
+
+.bullet {
+  position: absolute;
+  width: 5px;
+  height: 10px;
+  background-color: #fff;
+  border-radius: 2px;
+}
+
+.explosion {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background-image: url("assets/explosion.png");
+  background-size: cover;
+  opacity: 0.8;
+  animation: explode 0.5s ease-out;
+}
+
+@keyframes explode {
+  0% { transform: scale(0.5); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+#pauseMenu {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 30px;
+  text-align: center;
+  color: white;
+}
+
+.hidden {
+  display: none;
+}
+
+#pauseMenu button {
+  margin: 10px;
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
