@@ -57,7 +57,6 @@
       width: 30px;
       height: 50px;
       background-image: url("enemy.png");
-      /* Path to your enemy image */
       background-size: cover;
       background-position: center;
     }
@@ -119,9 +118,12 @@
     <button id="continueButton">Continue</button>
     <button id="restartButton">Restart</button>
   </div>
+  <audio id="shootSound" src="sounds/shots.mp3"></audio>
+  <audio id="hitSound" src="sounds/hit.mp3"></audio>
+  <audio id="explosionSound" src="sounds/explosion.mp3"></audio>
+  <audio id="gameOverSound" src="sounds/gameover.mp3"></audio>
 
   <script>
-
     const gameContainer = document.getElementById("gameContainer");
     const levelDisplay = document.getElementById("levelDisplay");
     const scoreDisplay = document.getElementById("scoreDisplay");
@@ -129,6 +131,11 @@
     const pauseMenu = document.getElementById("pauseMenu");
     const continueButton = document.getElementById("continueButton");
     const restartButton = document.getElementById("restartButton");
+
+    const shootSound = document.getElementById("shootSound");
+    const hitSound = document.getElementById("hitSound");
+    const explosionSound = document.getElementById("explosionSound");
+    const gameOverSound = document.getElementById("gameOverSound");
 
     continueButton.addEventListener("click", resumeGame);
     restartButton.addEventListener("click", restartGame);
@@ -156,15 +163,16 @@
     const shotCooldown = 100; // Cooldown period in milliseconds
 
     let startTime;
+    let elapsedTime = 0;
     let timerInterval;
 
     function startTimer() {
-      startTime = Date.now();
+      startTime = Date.now() - elapsedTime * 1000;
       timerInterval = setInterval(updateTimer, 1000);
     }
 
     function updateTimer() {
-      const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+      elapsedTime = Math.floor((Date.now() - startTime) / 1000);
       document.getElementById("timerDisplay").textContent = elapsedTime;
     }
 
@@ -173,8 +181,25 @@
     }
 
     function resetTimer() {
-      startTime = Date.now();
+      elapsedTime = 0;
       document.getElementById("timerDisplay").textContent = 0;
+    }
+
+    function pauseGame() {
+      isPaused = true;
+      pauseMenu.style.display = "block";
+      // Stop the timer
+      stopTimer();
+      // Additional code to pause the game logic, e.g., stop animations, timers, etc.
+    }
+
+    function resumeGame() {
+      isPaused = false;
+      pauseMenu.style.display = "none";
+      // Restart the timer
+      startTimer();
+      // Additional code to resume the game logic, e.g., restart animations, timers, etc.
+      gameLoop(); // Ensure the game loop continues running
     }
 
     // Track key states
@@ -266,6 +291,7 @@
     function shootBullet() {
       const currentTime = Date.now();
       if (keys.Space && currentTime - lastShotTime >= shotCooldown) {
+        // Create
         // Create and shoot the bullet
         const bullet = document.createElement("div");
         bullet.className = "bullet";
@@ -281,6 +307,7 @@
           speed: 10,
         });
         lastShotTime = currentTime; // Update the last shot time
+        shootSound.play(); // Play shoot sound
       }
     }
 
@@ -323,6 +350,7 @@
         gameOverMessage.style.marginTop = "50px";
         gameContainer.appendChild(gameOverMessage);
         stopTimer();
+        gameOverSound.play(); // Play game over sound
         return;
       }
 
@@ -347,11 +375,11 @@
         if (aliveEnemies.length > 0) {
           const randomEnemy = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
           shootEnemyBullet(randomEnemy);
+          lastEnemyShootTime = Date.now();
         }
-        lastEnemyShootTime = Date.now();
       }
 
-      requestAnimationFrame(gameLoop);
+      requestAnimationFrame(gameLoop); // Continue the game loop
     }
 
     // Update player bullets
@@ -394,6 +422,11 @@
           if (enemy.x + enemy.width > 800 || enemy.x < 0) {
             edgeReached = true;
           }
+
+          // Check if enemy reaches the player's level
+          if (enemy.y + enemy.height >= player.y) {
+            gameOver = true;
+          }
         }
       });
 
@@ -407,14 +440,19 @@
       }
     }
 
-    // Trigger explosion
+    // Remove any existing explosion
     function triggerExplosion(x, y) {
+      const existingExplosion = document.querySelector(".explosion");
+      if (existingExplosion) {
+        existingExplosion.remove();
+      }
       const explosion = document.createElement("div");
       explosion.className = "explosion";
       explosion.style.left = `${x}px`;
       explosion.style.top = `${y}px`;
       gameContainer.appendChild(explosion);
       setTimeout(() => explosion.remove(), 500); // Remove explosion after 500ms
+      explosionSound.play(); // Play explosion sound
     }
 
     // Check collisions between player bullets and enemies
@@ -440,6 +478,9 @@
             // Increase score by 50 for each enemy kill
             score += 50;
             updateSidebar();
+
+            // Play hit sound
+            hitSound.play();
 
             // Check if all enemies are cleared
             if (enemies.every((e) => !e.alive)) {
@@ -581,49 +622,6 @@
       livesDisplay.textContent = lives;
     }
 
-    // Game loop
-    function gameLoop() {
-      if (gameOver) {
-        // Display "Game Over" message
-        const gameOverMessage = document.createElement("div");
-        gameOverMessage.textContent = "Game Over! Press Enter to Restart";
-        gameOverMessage.style.color = "#FFFFFF";
-        gameOverMessage.style.fontSize = "40px";
-        gameOverMessage.style.textAlign = "center";
-        gameOverMessage.style.marginTop = "50px";
-        gameContainer.appendChild(gameOverMessage);
-        stopTimer();
-        return;
-      }
-
-      if (isPaused) {
-        return;
-      }
-
-      movePlayer();
-      shootBullet();
-      updateBullets();
-      updateEnemyBullets();
-      updateEnemies();
-
-      checkPlayerBulletCollisions();
-      checkEnemyBulletCollisions();
-      checkBulletCollisions();
-      checkPlayerEnemyCollisions(); // Check for player-enemy collisions
-
-      // Enemy shooting logic
-      if (Date.now() - lastEnemyShootTime > enemyShootInterval) {
-        const aliveEnemies = enemies.filter((enemy) => enemy.alive);
-        if (aliveEnemies.length > 0) {
-          const randomEnemy = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
-          shootEnemyBullet(randomEnemy);
-        }
-        lastEnemyShootTime = Date.now();
-      }
-
-      requestAnimationFrame(gameLoop);
-    }
-
     // Restart the game
     function restartGame() {
       isPaused = false;
@@ -652,20 +650,6 @@
       // Reinitialize the game
       initializeGame();
       gameLoop();
-    }
-
-    // Pause and resume game functions
-    function pauseGame() {
-      isPaused = true;
-      pauseMenu.style.display = "block";
-      // Additional code to pause the game logic, e.g., stop animations, timers, etc.
-    }
-
-    function resumeGame() {
-      isPaused = false;
-      pauseMenu.style.display = "none";
-      // Additional code to resume the game logic, e.g., restart animations, timers, etc.
-      gameLoop(); // Ensure the game loop continues running
     }
 
     // Event listeners for keydown and keyup
