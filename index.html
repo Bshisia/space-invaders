@@ -6,38 +6,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Space Invaders</title>
   <style>
-    /* style.css */
+    /* General Styles */
     body {
       margin: 0;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      background-color: #000;
+      background: linear-gradient(135deg, #1e1e2f, #2a2a40);
       overflow: hidden;
+      font-family: 'Arial', sans-serif;
     }
 
     #gameContainer {
       position: relative;
       width: 800px;
       height: 600px;
-      background-color: #000;
-      border: 1px solid #fff;
+      border: 2px solid #444;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
     }
 
     #sidebar {
       width: 200px;
       height: 600px;
-      background-color: #333;
+      background: linear-gradient(135deg, #1e1e2f, #2a2a40);
       color: #fff;
       padding: 20px;
       box-sizing: border-box;
-      border-left: 1px solid #fff;
+      border-left: 2px solid #444;
+      box-shadow: 5px 0 10px rgba(0, 0, 0, 0.3);
     }
 
     #sidebar h2 {
       margin: 0 0 20px 0;
       font-size: 24px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
     }
 
     #player {
@@ -45,11 +49,24 @@
       width: 40px;
       height: 40px;
       background-image: url("player.png");
-      /* Path to your player image */
       background-size: cover;
       background-position: center;
       bottom: 5px;
       left: 50%;
+      transform: translateX(-50%);
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateX(0%) translateY(0);
+      }
+
+      50% {
+        transform: translateX(0%) translateY(-10px);
+      }
     }
 
     .enemy {
@@ -65,7 +82,19 @@
       position: absolute;
       width: 5px;
       height: 10px;
-      background-color: red;
+      background-color: #ff4444;
+      box-shadow: 0 0 10px #ff4444;
+      animation: pulse 0.5s infinite alternate;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+
+      100% {
+        transform: scale(1.2);
+      }
     }
 
     .explosion {
@@ -73,9 +102,21 @@
       width: 50px;
       height: 50px;
       background-image: url("explosion.png");
-      /* Path to your explosion image */
       background-size: cover;
       opacity: 0.8;
+      animation: explode 0.5s ease-out;
+    }
+
+    @keyframes explode {
+      0% {
+        transform: scale(0);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(2);
+        opacity: 0;
+      }
     }
 
     #pauseMenu {
@@ -88,7 +129,9 @@
       color: #fff;
       padding: 20px;
       text-align: center;
-      border: 1px solid #fff;
+      border: 2px solid #444;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     }
 
     #pauseMenu button {
@@ -96,6 +139,52 @@
       padding: 10px 20px;
       font-size: 16px;
       cursor: pointer;
+      background: linear-gradient(135deg, #444, #666);
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      transition: background 0.3s ease;
+    }
+
+    #pauseMenu button:hover {
+      background: linear-gradient(135deg, #666, #888);
+    }
+
+    #gameOverMessage {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #fff;
+      font-size: 40px;
+      text-align: center;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Background Animation */
+    @keyframes stars {
+      0% {
+        background-position: 0 0;
+      }
+
+      100% {
+        background-position: 1000px 1000px;
+      }
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url("BG.jpeg") repeat;
+      animation: stars 100s linear infinite;
+      opacity: 0.5;
+      z-index: -1;
     }
   </style>
 </head>
