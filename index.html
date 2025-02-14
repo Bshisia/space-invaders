@@ -207,10 +207,17 @@
     <button id="continueButton">Continue</button>
     <button id="restartButton">Restart</button>
   </div>
-  <audio id="shootSound" src="sounds/shots.mp3"></audio>
+
+  <div id="introScreen">
+    <h1>Welcome to Space Invaders</h1>
+    <p>In a galaxy far, far away, you are the last hope to defend your planet from an alien invasion. Use your skills to shoot down the enemies and save your world!</p>
+    <button id="startButton">Start Game</button>
+  </div>
+  <audio id="shootSound" src="sounds/shoot (1)-[AudioTrimmer.com].mp3"></audio>
   <audio id="hitSound" src="sounds/hit.mp3"></audio>
   <audio id="explosionSound" src="sounds/explosion.mp3"></audio>
   <audio id="gameOverSound" src="sounds/gameover.mp3"></audio>
+  <audio id="intro" src="sounds/intro.mp3" autoplay></audio>
 
   <script>
     const gameContainer = document.getElementById("gameContainer");
@@ -249,7 +256,7 @@
     let score = 0; // Track the player's score
     let lives = 3; // Track the player's lives
     let lastShotTime = 0;
-    const shotCooldown = 100; // Cooldown period in milliseconds
+    const shotCooldown = 500; // Cooldown period in milliseconds
 
     let startTime;
     let elapsedTime = 0;
