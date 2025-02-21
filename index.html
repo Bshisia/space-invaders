@@ -208,16 +208,12 @@
     <button id="restartButton">Restart</button>
   </div>
 
-  <div id="introScreen">
-    <h1>Welcome to Space Invaders</h1>
-    <p>In a galaxy far, far away, you are the last hope to defend your planet from an alien invasion. Use your skills to shoot down the enemies and save your world!</p>
-    <button id="startButton">Start Game</button>
-  </div>
-  <audio id="shootSound" src="sounds/shoot (1)-[AudioTrimmer.com].mp3"></audio>
-  <audio id="hitSound" src="sounds/hit.mp3"></audio>
+  <!-- Audio Elements -->
+  <audio id="shootSound" src="sounds/shoot.mp3"></audio>
   <audio id="explosionSound" src="sounds/explosion.mp3"></audio>
   <audio id="gameOverSound" src="sounds/gameover.mp3"></audio>
-  <audio id="intro" src="sounds/intro.mp3" autoplay></audio>
+  <audio id="hitSound" src="sounds/HIT.mp3"></audio>
+  <audio id="intro" src="sounds/intro.mp3"></audio>
 
   <script>
     const gameContainer = document.getElementById("gameContainer");
@@ -232,6 +228,7 @@
     const hitSound = document.getElementById("hitSound");
     const explosionSound = document.getElementById("explosionSound");
     const gameOverSound = document.getElementById("gameOverSound");
+    const introSound = document.getElementById("intro");
 
     continueButton.addEventListener("click", resumeGame);
     restartButton.addEventListener("click", restartGame);
@@ -247,7 +244,7 @@
     let enemyColumns = 8;
     let enemyWidth = 50;
     let enemyHeight = 70;
-    let enemySpeed = 1;
+    let enemySpeed = 1; // Initial enemy speed
     let enemyDirection = 1;
     let enemyShootInterval = 1000; // Initial firing interval
     let lastEnemyShootTime = 0;
@@ -256,7 +253,8 @@
     let score = 0; // Track the player's score
     let lives = 3; // Track the player's lives
     let lastShotTime = 0;
-    const shotCooldown = 500; // Cooldown period in milliseconds
+    const initialShotCooldown = 500; // Initial cooldown in milliseconds
+    let shotCooldown = initialShotCooldown; // Current cooldown
 
     let startTime;
     let elapsedTime = 0;
@@ -284,18 +282,14 @@
     function pauseGame() {
       isPaused = true;
       pauseMenu.style.display = "block";
-      // Stop the timer
       stopTimer();
-      // Additional code to pause the game logic, e.g., stop animations, timers, etc.
     }
 
     function resumeGame() {
       isPaused = false;
       pauseMenu.style.display = "none";
-      // Restart the timer
       startTimer();
-      // Additional code to resume the game logic, e.g., restart animations, timers, etc.
-      gameLoop(); // Ensure the game loop continues running
+      gameLoop();
     }
 
     // Track key states
@@ -304,6 +298,7 @@
       ArrowRight: false,
       Space: false,
     };
+
     // Initialize the game
     function initializeGame() {
       // Clear the game container
@@ -337,6 +332,8 @@
       score = 0;
       lives = 3;
       enemyShootInterval = 1000; // Reset enemy shooting interval to initial value
+      enemySpeed = 1; // Reset enemy speed to initial value
+      shotCooldown = initialShotCooldown; // Reset player shooting cooldown to initial value
       lastEnemyShootTime = 0;
 
       // Initialize enemies
@@ -348,6 +345,9 @@
       // Start the timer
       resetTimer();
       startTimer();
+
+      // Play the intro sound at the start of the game
+      introSound.play();
     }
 
     // Initialize enemies
@@ -382,13 +382,10 @@
       player.element.style.left = `${player.x}px`;
     }
 
-
-    // Shoot player bullet (UPDATED TO FIRE FROM CENTER)
+    // Shoot player bullet
     function shootBullet() {
       const currentTime = Date.now();
       if (keys.Space && currentTime - lastShotTime >= shotCooldown) {
-        // Create
-        // Create and shoot the bullet
         const bullet = document.createElement("div");
         bullet.className = "bullet";
         bullet.style.left = `${player.x + player.width / 2 - 2.5}px`;
@@ -402,8 +399,8 @@
           height: 10,
           speed: 10,
         });
-        lastShotTime = currentTime; // Update the last shot time
-        shootSound.play(); // Play shoot sound
+        lastShotTime = currentTime;
+        shootSound.play();
       }
     }
 
@@ -411,31 +408,31 @@
     function shootEnemyBullet(enemy) {
       const bullet = document.createElement("div");
       bullet.className = "bullet";
-      bullet.style.left = `${enemy.x + enemy.width / 2 - 2.5}px`; // Center the bullet horizontally
-      bullet.style.top = `${enemy.y + enemy.height}px`; // Start from the bottom of the enemy
+      bullet.style.left = `${enemy.x + enemy.width / 2 - 2.5}px`;
+      bullet.style.top = `${enemy.y + enemy.height}px`;
       gameContainer.appendChild(bullet);
       enemyBullets.push({
         element: bullet,
-        x: enemy.x + enemy.width / 2 - 2.5, // Center the bullet horizontally
+        x: enemy.x + enemy.width / 2 - 2.5,
         y: enemy.y + enemy.height,
         width: 5,
         height: 10,
-        speed: 5, // Slower speed for enemy bullets
+        speed: 5,
       });
     }
 
     // Update bullet colors
     function updateBulletColors() {
       bullets.forEach((bullet) => {
-        bullet.element.style.backgroundColor = "red"; // Player bullet color
+        bullet.element.style.backgroundColor = "red";
       });
 
       enemyBullets.forEach((bullet) => {
-        bullet.element.style.backgroundColor = "yellow"; // Enemy bullet color
+        bullet.element.style.backgroundColor = "yellow";
       });
     }
 
-    // Call updateBulletColors in the game loop
+    // Game loop
     function gameLoop() {
       if (gameOver) {
         const gameOverMessage = document.createElement("div");
@@ -446,7 +443,7 @@
         gameOverMessage.style.marginTop = "50px";
         gameContainer.appendChild(gameOverMessage);
         stopTimer();
-        gameOverSound.play(); // Play game over sound
+        gameOverSound.play();
         return;
       }
 
@@ -459,7 +456,7 @@
       updateBullets();
       updateEnemyBullets();
       updateEnemies();
-      updateBulletColors(); // Update bullet colors
+      updateBulletColors();
 
       checkPlayerBulletCollisions();
       checkEnemyBulletCollisions();
@@ -475,7 +472,7 @@
         }
       }
 
-      requestAnimationFrame(gameLoop); // Continue the game loop
+      requestAnimationFrame(gameLoop);
     }
 
     // Update player bullets
@@ -484,7 +481,6 @@
         bullet.y -= bullet.speed;
         bullet.element.style.top = `${bullet.y}px`;
 
-        // Remove bullet if it goes off-screen
         if (bullet.y + bullet.height < 0) {
           bullet.element.remove();
           bullets.splice(index, 1);
@@ -498,7 +494,6 @@
         bullet.y += bullet.speed;
         bullet.element.style.top = `${bullet.y}px`;
 
-        // Remove bullet if it goes off-screen
         if (bullet.y > 600) {
           bullet.element.remove();
           enemyBullets.splice(index, 1);
@@ -514,19 +509,16 @@
           enemy.x += enemySpeed * enemyDirection;
           enemy.element.style.left = `${enemy.x}px`;
 
-          // Check if enemies reach the edge
           if (enemy.x + enemy.width > 800 || enemy.x < 0) {
             edgeReached = true;
           }
 
-          // Check if enemy reaches the player's level
           if (enemy.y + enemy.height >= player.y) {
             gameOver = true;
           }
         }
       });
 
-      // Reverse direction and move down if edge is reached
       if (edgeReached) {
         enemyDirection *= -1;
         enemies.forEach((enemy) => {
@@ -536,7 +528,7 @@
       }
     }
 
-    // Remove any existing explosion
+    // Trigger explosion
     function triggerExplosion(x, y) {
       const existingExplosion = document.querySelector(".explosion");
       if (existingExplosion) {
@@ -547,8 +539,7 @@
       explosion.style.left = `${x}px`;
       explosion.style.top = `${y}px`;
       gameContainer.appendChild(explosion);
-      setTimeout(() => explosion.remove(), 500); // Remove explosion after 500ms
-      explosionSound.play(); // Play explosion sound
+      setTimeout(() => explosion.remove(), 500);
     }
 
     // Check collisions between player bullets and enemies
@@ -562,23 +553,20 @@
             bullet.y < enemy.y + enemy.height &&
             bullet.y + bullet.height > enemy.y
           ) {
-            // Enemy hit!
             enemy.alive = false;
             enemy.element.remove();
             bullets.splice(bulletIndex, 1);
             bullet.element.remove();
 
-            // Trigger explosion at enemy's position
             triggerExplosion(enemy.x, enemy.y);
+            explosionSound.play();
 
-            // Increase score by 50 for each enemy kill
+
             score += 50;
             updateSidebar();
 
-            // Play hit sound
-            hitSound.play();
+            // hitSound.play();
 
-            // Check if all enemies are cleared
             if (enemies.every((e) => !e.alive)) {
               levelUp();
             }
@@ -596,28 +584,18 @@
           bullet.y < player.y + player.height &&
           bullet.y + bullet.height > player.y
         ) {
-          // Player hit!
           player.alive = false;
-
-          // Remove the player's image
           player.element.remove();
-
-          // Trigger explosion at player's position
           triggerExplosion(player.x, player.y);
-
-          // Remove the enemy bullet
+          hitSound.play();
           enemyBullets.splice(bulletIndex, 1);
           bullet.element.remove();
-
-          // Decrease lives
           lives--;
           updateSidebar();
 
-          // End the game if no lives left
           if (lives === 0) {
             gameOver = true;
           } else {
-            // Reset player position if lives remain
             player.alive = true;
             player.element = document.createElement("div");
             player.element.id = "player";
@@ -639,29 +617,18 @@
           player.y < enemy.y + enemy.height &&
           player.y + player.height > enemy.y
         ) {
-          // Player collides with enemy!
           player.alive = false;
           enemy.alive = false;
-
-          // Trigger explosion at player's position
           triggerExplosion(player.x, player.y);
-
-          // Trigger explosion at enemy's position
           triggerExplosion(enemy.x, enemy.y);
-
-          // Remove the player and enemy elements
           player.element.remove();
           enemy.element.remove();
-
-          // Decrease lives
           lives--;
           updateSidebar();
 
-          // End the game if no lives left
           if (lives === 0) {
             gameOver = true;
           } else {
-            // Reset player position if lives remain
             player.alive = true;
             player.element = document.createElement("div");
             player.element.id = "player";
@@ -670,7 +637,6 @@
             gameContainer.appendChild(player.element);
           }
 
-          // Remove the enemy from the enemies array
           enemies.splice(enemyIndex, 1);
         }
       });
@@ -686,14 +652,11 @@
             playerBullet.y < enemyBullet.y + enemyBullet.height &&
             playerBullet.y + playerBullet.height > enemyBullet.y
           ) {
-            // Bullets collide!
-            // Trigger explosion at the collision point
             triggerExplosion(
               (playerBullet.x + enemyBullet.x) / 2,
               (playerBullet.y + enemyBullet.y) / 2
             );
 
-            // Remove both bullets
             playerBullet.element.remove();
             enemyBullet.element.remove();
             bullets.splice(playerBulletIndex, 1);
@@ -705,9 +668,15 @@
 
     // Level up
     function levelUp() {
-      level++; // Increment the level
-      enemyShootInterval = Math.max(200, enemyShootInterval - 100); // Increase firing rate (minimum 200ms)
-      initializeEnemies(); // Spawn new enemies
+      level++;
+      enemyShootInterval = Math.max(200, enemyShootInterval - 100);
+      enemySpeed += 0.5; // Increase enemy speed
+      shotCooldown = Math.max(100, shotCooldown - 50); // Reduce player shooting cooldown
+
+      // Play the intro sound after leveling up
+      introSound.play();
+
+      initializeEnemies();
       updateSidebar();
     }
 
@@ -723,12 +692,10 @@
       isPaused = false;
       pauseMenu.style.display = "none";
 
-      // Clear the game container
       while (gameContainer.firstChild) {
         gameContainer.removeChild(gameContainer.firstChild);
       }
 
-      // Reset game variables
       player = null;
       bullets = [];
       enemyBullets = [];
@@ -738,12 +705,10 @@
       score = 0;
       lives = 3;
 
-      // Update the sidebar
       levelDisplay.textContent = level;
       scoreDisplay.textContent = score;
       livesDisplay.textContent = lives;
 
-      // Reinitialize the game
       initializeGame();
       gameLoop();
     }
@@ -757,7 +722,6 @@
       } else if (e.key === " ") {
         keys.Space = true;
       } else if (e.key === "Enter" && gameOver) {
-        // Restart the game when Enter is pressed after game over
         restartGame();
       } else if (e.key === "p" || e.key === "P") {
         if (isPaused) {
